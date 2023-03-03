@@ -107,13 +107,16 @@ export default class OCPP16ResponseService extends OCPPResponseService {
       (this.chargingStation.getBeginEndMeterValues() && this.chargingStation.getOutOfOrderEndMeterValues())
         && await this.chargingStation.ocppRequestService.sendTransactionEndMeterValues(transactionConnectorId, requestPayload.transactionId,
           OCPP16ServiceUtils.buildTransactionEndMeterValue(this.chargingStation, transactionConnectorId, requestPayload.meterStop));
+      var status=OCPP16ChargePointStatus.AVAILABLE;
       if (!this.chargingStation.isChargingStationAvailable() || !this.chargingStation.isConnectorAvailable(transactionConnectorId)) {
-        await this.chargingStation.ocppRequestService.sendStatusNotification(transactionConnectorId, OCPP16ChargePointStatus.UNAVAILABLE);
-        this.chargingStation.getConnector(transactionConnectorId).status = OCPP16ChargePointStatus.UNAVAILABLE;
+        status = OCPP16ChargePointStatus.UNAVAILABLE;
       } else {
-        await this.chargingStation.ocppRequestService.sendStatusNotification(transactionConnectorId, OCPP16ChargePointStatus.AVAILABLE);
-        this.chargingStation.getConnector(transactionConnectorId).status = OCPP16ChargePointStatus.AVAILABLE;
+        status = this.chargingStation.isConnectorTransactionEndToStatus(transactionConnectorId);
       }
+
+      await this.chargingStation.ocppRequestService.sendStatusNotification(transactionConnectorId, status);
+      this.chargingStation.getConnector(transactionConnectorId).status = status;
+
       if (this.chargingStation.stationInfo.powerSharedByConnectors) {
         this.chargingStation.stationInfo.powerDivider--;
       }

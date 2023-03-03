@@ -124,6 +124,9 @@ export default class ChargingStation {
     return this.getConnector(id).availability === AvailabilityType.OPERATIVE;
   }
 
+  public isConnectorTransactionEndToStatus(id: number): ChargePointStatus {
+    return this.getConnector(id).transactionEndToStatus ?? ChargePointStatus.AVAILABLE;
+  }
   public getConnector(id: number): Connector {
     return this.connectors[id];
   }
@@ -839,15 +842,15 @@ export default class ChargingStation {
         continue;
       } else if (!this.stopped && !this.getConnector(Utils.convertToInt(connector))?.status && this.getConnector(Utils.convertToInt(connector))?.bootStatus) {
         // Send status in template at startup
-        await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), this.getConnector(Utils.convertToInt(connector)).bootStatus);
+        await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), this.getConnector(Utils.convertToInt(connector)).bootStatus,this.getConnector(Utils.convertToInt(connector))?.bootErrorCode);
         this.getConnector(Utils.convertToInt(connector)).status = this.getConnector(Utils.convertToInt(connector)).bootStatus;
       } else if (this.stopped && this.getConnector(Utils.convertToInt(connector))?.bootStatus) {
         // Send status in template after reset
-        await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), this.getConnector(Utils.convertToInt(connector)).bootStatus);
+        await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), this.getConnector(Utils.convertToInt(connector)).bootStatus,this.getConnector(Utils.convertToInt(connector))?.bootErrorCode);
         this.getConnector(Utils.convertToInt(connector)).status = this.getConnector(Utils.convertToInt(connector)).bootStatus;
       } else if (!this.stopped && this.getConnector(Utils.convertToInt(connector))?.status) {
         // Send previous status at template reload
-        await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), this.getConnector(Utils.convertToInt(connector)).status);
+        await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), this.getConnector(Utils.convertToInt(connector)).status,this.getConnector(Utils.convertToInt(connector))?.bootErrorCode);
       } else {
         // Send default status
         await this.ocppRequestService.sendStatusNotification(Utils.convertToInt(connector), ChargePointStatus.AVAILABLE);

@@ -3,6 +3,7 @@ import { MeterValue, SampledValue } from './ocpp/MeterValues';
 import { AvailabilityType } from './ocpp/Requests';
 import { ChargePointStatus } from './ocpp/ChargePointStatus';
 import { ChargingProfile } from './ocpp/ChargingProfile';
+import { OCPP16ChargePointErrorCode } from './ocpp/1.6/ChargePointErrorCode';
 
 export interface SampledValueTemplate extends SampledValue {
   fluctuationPercent?: number;
@@ -11,6 +12,8 @@ export interface SampledValueTemplate extends SampledValue {
 export interface Connector {
   availability: AvailabilityType;
   bootStatus?: ChargePointStatus;
+  transactionEndToStatus?:ChargePointStatus;
+  bootErrorCode?:OCPP16ChargePointErrorCode;
   status?: ChargePointStatus;
   MeterValues: SampledValueTemplate[];
   authorizeIdTag?: string;

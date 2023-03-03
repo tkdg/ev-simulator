@@ -412,6 +412,12 @@ export default class OCPP16IncomingRequestService extends OCPPIncomingRequestSer
             this.chargingStation.ocppRequestService.sendHeartbeat().catch(() => { /* This is intentional */ });
           }, Constants.OCPP_TRIGGER_MESSAGE_DELAY);
           return Constants.OCPP_TRIGGER_MESSAGE_RESPONSE_ACCEPTED;
+        case MessageTrigger.StatusNotification:
+          setTimeout(() => {
+            console.log(this.chargingStation.getConnector(commandPayload.connectorId).status);
+            this.chargingStation.ocppRequestService.sendStatusNotification(commandPayload.connectorId,this.chargingStation.getConnector(commandPayload.connectorId).status).catch(() => { /* This is intentional */ });
+          }, Constants.OCPP_TRIGGER_MESSAGE_DELAY);
+          return Constants.OCPP_TRIGGER_MESSAGE_RESPONSE_ACCEPTED;
         default:
           return Constants.OCPP_TRIGGER_MESSAGE_RESPONSE_NOT_IMPLEMENTED;
       }
